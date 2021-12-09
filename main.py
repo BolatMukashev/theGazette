@@ -1,6 +1,6 @@
 from bondua import BounduaParse
 
 if __name__ == '__main__':
-    URL = r'https://buondua.com/huayang-vol-408-zhu-ke-er-%E6%9C%B1%E5%8F%AF%E5%84%BFflower-57-photos-22886'
+    URL = r'https://buondua.com/xiuren-no-3388-zheng-ying-shan-%E9%83%91%E9%A2%96%E5%A7%97bev-49-photos-23286'
     asian_girl_photos = BounduaParse(URL)
     asian_girl_photos.download_photos()

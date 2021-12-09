@@ -2,3 +2,4 @@
 venv
 .gitignore
 photos/**
+telegraph_token.json

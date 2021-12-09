@@ -2,6 +2,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm as loading_bar
+from PIL import Image
 
 
 class BounduaParse(object):
@@ -14,6 +15,7 @@ class BounduaParse(object):
         self.pages_numbers = 1
         self.all_photos_links = []
         self.parse()
+        self.directory = None
 
     def get_html(self, params=None):
         response = requests.get(url=self.url, headers=self.headers, params=params)
@@ -74,11 +76,20 @@ class BounduaParse(object):
             return path
 
     def download_photos(self):
-        directory = self.create_directory(self.title)
+        self.directory = self.create_directory(self.title)
         count = 1
         for link in loading_bar(self.all_photos_links):
             img_data = requests.get(link).content
-            photo_path = os.path.join(directory, f'{count}.jpg')
+            photo_path = os.path.join(self.directory, f'{count}.jpg')
             with open(photo_path, 'wb') as photo:
                 photo.write(img_data)
+            self.crop_image(photo_path)
             count += 1
+
+    @staticmethod
+    def crop_image(photo_path):
+        image = Image.open(photo_path)
+        width, height = image.size
+        x, y = 0, 50
+        cropped = image.crop((x, y, width, height - y))
+        cropped.save(photo_path)
