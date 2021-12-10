@@ -95,16 +95,19 @@ class BounduaParse(object):
             os.remove(os.path.join(self.directory, fucked_file))
 
     @staticmethod
-    def crop_image(photo_path):
+    def crop_image(photo_path, x1, x2, y1, y2):
         image = Image.open(photo_path)
         width, height = image.size
-        x, y = 0, 50
-        cropped = image.crop((x, y, width, height - y))
+        crop_left = x1
+        crop_top = y1
+        crop_right = width - x2
+        crop_bottom = height - y2
+        cropped = image.crop((crop_left, crop_top, crop_right, crop_bottom))
         cropped.save(photo_path)
 
-    def crop_all_images(self):
+    def crop_all_images(self, x1=0, x2=0, y1=50, y2=40):
         self.delete_fucked_file()
         all_photos = os.listdir(self.directory)
         for photo in loading_bar(all_photos, desc='Образаю фотки'):
             path = os.path.join(self.directory, photo)
-            self.crop_image(path)
+            self.crop_image(path, x1, x2, y1, y2)
