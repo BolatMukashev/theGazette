@@ -5,6 +5,9 @@ from tqdm import tqdm as loading_bar
 from PIL import Image
 
 
+fucked_file = 'Thumbs.db'
+
+
 class BounduaParse(object):
 
     def __init__(self, url):
@@ -14,8 +17,8 @@ class BounduaParse(object):
         self.title = None
         self.pages_numbers = 1
         self.all_photos_links = []
-        self.parse()
         self.directory = None
+        self.parse()
 
     def get_html(self, params=None):
         response = requests.get(url=self.url, headers=self.headers, params=params)
@@ -64,6 +67,7 @@ class BounduaParse(object):
         self.title = self.get_title(first_page)
         self.get_pages_numbers(first_page)
         self.all_photos_links = self.get_all_photos()
+        self.directory = os.path.join(os.getcwd(), 'photos', self.title)
 
     @staticmethod
     def create_directory(name):
@@ -78,13 +82,17 @@ class BounduaParse(object):
     def download_photos(self):
         self.directory = self.create_directory(self.title)
         count = 1
-        for link in loading_bar(self.all_photos_links):
+        for link in loading_bar(self.all_photos_links, desc='Скачиваю фотки'):
             img_data = requests.get(link).content
             photo_path = os.path.join(self.directory, f'{count}.jpg')
             with open(photo_path, 'wb') as photo:
                 photo.write(img_data)
-            self.crop_image(photo_path)
             count += 1
+        self.delete_fucked_file()
+
+    def delete_fucked_file(self):
+        if os.path.isfile(os.path.join(self.directory, fucked_file)):
+            os.remove(os.path.join(self.directory, fucked_file))
 
     @staticmethod
     def crop_image(photo_path):
@@ -93,3 +101,10 @@ class BounduaParse(object):
         x, y = 0, 50
         cropped = image.crop((x, y, width, height - y))
         cropped.save(photo_path)
+
+    def crop_all_images(self):
+        self.delete_fucked_file()
+        all_photos = os.listdir(self.directory)
+        for photo in loading_bar(all_photos, desc='Образаю фотки'):
+            path = os.path.join(self.directory, photo)
+            self.crop_image(path)
