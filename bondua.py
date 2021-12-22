@@ -10,7 +10,7 @@ fucked_file = 'Thumbs.db'
 
 class BounduaParse(object):
 
-    def __init__(self, url):
+    def __init__(self, url, txt=False):
         self.url = url
         self.headers = {'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 ('
                                       'KHTML, like Gecko) Chrome/96.0.4664.45 Mobile Safari/537.36', 'accept': '*/*'}
@@ -18,6 +18,7 @@ class BounduaParse(object):
         self.pages_numbers = 1
         self.all_photos_links = []
         self.directory = None
+        self.txt = txt
         self.parse()
 
     def get_html(self, params=None):
@@ -88,11 +89,11 @@ class BounduaParse(object):
             with open(photo_path, 'wb') as photo:
                 photo.write(img_data)
             count += 1
-        self.delete_fucked_file()
+        self._delete_file()
 
-    def delete_fucked_file(self):
-        if os.path.isfile(os.path.join(self.directory, fucked_file)):
-            os.remove(os.path.join(self.directory, fucked_file))
+    def _delete_file(self, file_name=fucked_file):
+        if os.path.isfile(os.path.join(self.directory, file_name)):
+            os.remove(os.path.join(self.directory, file_name))
 
     @staticmethod
     def crop_image(photo_path, x1, x2, y1, y2):
@@ -106,7 +107,7 @@ class BounduaParse(object):
         cropped.save(photo_path)
 
     def crop_all_images(self, x1=0, x2=0, y1=50, y2=40):
-        self.delete_fucked_file()
+        self._delete_file()
         all_photos = os.listdir(self.directory)
         for photo in loading_bar(all_photos, desc='Образаю фотки'):
             path = os.path.join(self.directory, photo)
