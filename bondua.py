@@ -27,7 +27,8 @@ class BounduaParse(object):
 
     @staticmethod
     def get_page(html):
-        soup = BeautifulSoup(html.text, 'html.parser')
+        soup = BeautifulSoup(html.text, 'html5lib')             # 'lxml'
+        print(soup.prettify())
         return soup
 
     @staticmethod
@@ -48,7 +49,7 @@ class BounduaParse(object):
         self.pages_numbers = len(blocks)
 
     @staticmethod
-    def get_photos(page):
+    def get_photos_links(page):
         photos_block = page.find('div', class_='article-fulltext')
         items = photos_block.find_all('img', class_='lazy')
         urls = [x.get('data-src') for x in items]
@@ -59,7 +60,7 @@ class BounduaParse(object):
         for x in range(1, self.pages_numbers + 1):
             html = self.get_html(params={'page': x})
             page_ = self.get_page(html)
-            photos = self.get_photos(page_)
+            photos = self.get_photos_links(page_)
             all_photos.extend(photos)
         return all_photos
 
@@ -84,7 +85,7 @@ class BounduaParse(object):
         self.directory = self.create_directory(self.title)
         count = 1
         for link in loading_bar(self.all_photos_links, desc='Скачиваю фотки'):
-            img_data = requests.get(link).content
+            img_data = requests.get(link, headers=self.headers).content
             photo_path = os.path.join(self.directory, f'{count}.jpg')
             with open(photo_path, 'wb') as photo:
                 photo.write(img_data)
